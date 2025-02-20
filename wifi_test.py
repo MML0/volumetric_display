@@ -1,4 +1,43 @@
 import socket
+import time ,random
+
+ESP_IP = "192.168.43.222"  # Replace with your ESP's IP
+ESP_PORT = 8266
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+
+start_time = time.time()
+# start byte
+sock.sendto(b"\xAA", (ESP_IP, ESP_PORT))
+# time.sleep(0.00001)
+for i in range(25):
+    data = bytearray(1400)  # 4KB of test data
+    for i in range(len(data)):
+        data[i] = random.randint(0, 255)
+    sock.sendto(data, (ESP_IP, ESP_PORT))
+
+# end byte
+sock.sendto(data, (ESP_IP, ESP_PORT))
+sock.sendto(data, (ESP_IP, ESP_PORT))
+sock.sendto(data, (ESP_IP, ESP_PORT))
+sock.sendto(data, (ESP_IP, ESP_PORT))
+sock.sendto(data, (ESP_IP, ESP_PORT))
+
+sock.sendto(b"\xBB", (ESP_IP, ESP_PORT))
+
+end_time = time.time()
+
+print(f"Sent {len(data)} bytes in {end_time - start_time:.6f} seconds")
+sock.close()
+
+
+
+
+input()
+
+
+
+import socket
 import time
 import struct
 
