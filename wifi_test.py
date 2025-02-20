@@ -4,8 +4,8 @@ import random
 
 ESP_IP = "192.168.43.222"  # Replace with ESP's IP
 ESP_PORT = 8266
-CHUNK_SIZE = 4000  
-TOTAL_SIZE = 36000
+CHUNK_SIZE = 1400  
+TOTAL_SIZE = 13500
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -14,11 +14,11 @@ def send_data(data, ESP_IP, ESP_PORT, chunk_size=1400):
     sock.sendto(b"\xAA", (ESP_IP, ESP_PORT))  # Start byte
     time.sleep(0.001)  # Small delay for ESP to process
     for i in range(0, len(data), chunk_size):
-        time.sleep(0.5 /1000)  # Small delay for ESP to process
         chunk = data[i:i+chunk_size]  # Extract chunk
+        time.sleep(0.3 /1000)  # Small delay for ESP to process
         sock.sendto(chunk, (ESP_IP, ESP_PORT))  # Send chunk
     # time.sleep(0.0005)  # Small delay for ESP to process
-    # sock.sendto(b"\xBB", (ESP_IP, ESP_PORT))  # End byte
+    sock.sendto(b"\xBB", (ESP_IP, ESP_PORT))  # End byte
     print("Data transfer completed.")
 
 while 1:
@@ -31,6 +31,6 @@ while 1:
     end_time = time.time()
 
     print(f"Sent {len(data)} bytes in {end_time - start_time:.6f} seconds")
-    time.sleep(0.04)  # Small delay for ESP to process
+    time.sleep(0.03)  # Small delay for ESP to process
 
 sock.close()  # Close socket

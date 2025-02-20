@@ -1,6 +1,7 @@
 # volumetric_display
 
 
+
 ## colected data esp 82666 d1 mini
 esp 82666 can acsept fagmented data in udp pacets so it recive up to 8 kb of data in one packet 
 
@@ -38,6 +39,14 @@ Transfer completed in 46687 us
 Transfer completed in 42498 us
 
 
+CHUNK_SIZE = 4000  
+TOTAL_SIZE = 14000
+Transfer completed in 28323 us
+Transfer completed in 23490 us
+Transfer completed in 25020 us
+Transfer completed in 24100 us
+Transfer completed in 24210 us
+Transfer completed in 24434 us
 
 
 ## colected data esp 32 wroom32
