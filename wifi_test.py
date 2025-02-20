@@ -1,61 +1,36 @@
 import socket
-import time ,random
-
-ESP_IP = "192.168.43.222"  # Replace with your ESP's IP
-ESP_PORT = 8266
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-
-start_time = time.time()
-# start byte
-sock.sendto(b"\xAA", (ESP_IP, ESP_PORT))
-# time.sleep(0.00001)
-for i in range(25):
-    data = bytearray(1400)  # 4KB of test data
-    for i in range(len(data)):
-        data[i] = random.randint(0, 255)
-    sock.sendto(data, (ESP_IP, ESP_PORT))
-
-# end byte
-sock.sendto(data, (ESP_IP, ESP_PORT))
-sock.sendto(data, (ESP_IP, ESP_PORT))
-sock.sendto(data, (ESP_IP, ESP_PORT))
-sock.sendto(data, (ESP_IP, ESP_PORT))
-sock.sendto(data, (ESP_IP, ESP_PORT))
-
-sock.sendto(b"\xBB", (ESP_IP, ESP_PORT))
-
-end_time = time.time()
-
-print(f"Sent {len(data)} bytes in {end_time - start_time:.6f} seconds")
-sock.close()
-
-
-
-
-input()
-
-
-
-import socket
 import time
-import struct
+import random
 
 ESP_IP = "192.168.43.222"  # Replace with ESP's IP
 ESP_PORT = 8266
-CHUNK_SIZE = 4096 - 2  # Reserve 2 bytes for the index
-TOTAL_SIZE = 36 * 1024 +5  # 36 KB
+CHUNK_SIZE = 4000  
+TOTAL_SIZE = 36000
 
-# Create UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-data = bytearray(TOTAL_SIZE)  # Dummy data
-start_time = time.time()
 
-for i in range(0, TOTAL_SIZE, CHUNK_SIZE):
-    chunk_index = i // CHUNK_SIZE
-    header = struct.pack(">H", chunk_index)  # 2-byte big-endian index
-    chunk = header + data[i:i+CHUNK_SIZE]
-    sock.sendto(chunk, (ESP_IP, ESP_PORT))
+def send_data(data, ESP_IP, ESP_PORT, chunk_size=1400):
+    """ Sends data in chunks via UDP to ESP8266. """
+    sock.sendto(b"\xAA", (ESP_IP, ESP_PORT))  # Start byte
+    time.sleep(0.001)  # Small delay for ESP to process
+    for i in range(0, len(data), chunk_size):
+        time.sleep(0.5 /1000)  # Small delay for ESP to process
+        chunk = data[i:i+chunk_size]  # Extract chunk
+        sock.sendto(chunk, (ESP_IP, ESP_PORT))  # Send chunk
+    # time.sleep(0.0005)  # Small delay for ESP to process
+    # sock.sendto(b"\xBB", (ESP_IP, ESP_PORT))  # End byte
+    print("Data transfer completed.")
 
-end_time = time.time()
-print(f"Transfer completed in {end_time - start_time:.2f} seconds")
+while 1:
+    data = bytearray(TOTAL_SIZE)
+    for i in range(len(data)):
+        data[i] = random.randint(0, 255)
+
+    start_time = time.time()
+    send_data(data, ESP_IP, ESP_PORT, CHUNK_SIZE)
+    end_time = time.time()
+
+    print(f"Sent {len(data)} bytes in {end_time - start_time:.6f} seconds")
+    time.sleep(0.04)  # Small delay for ESP to process
+
+sock.close()  # Close socket

@@ -15,20 +15,22 @@ unsigned int port = 8266;
 WiFiUDP udp;
 
 
-const int CHUNK_SIZE = 1500;  
-const int TOTAL_SIZE = 40 * 1024;
+const int CHUNK_SIZE = 8500;  
+const int TOTAL_SIZE = 36 * 1024;
 uint8_t data[TOTAL_SIZE];
 uint8_t buffer[CHUNK_SIZE];  // Declare globally
 unsigned long start_time, end_time;
-bool first_packet = true;
 int receivedBytes = 0;
 
 
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(921600);
   
     WiFi.config(staticIP, gateway, subnet);
     WiFi.begin(ssid, password);
+    Serial.println("");
+    Serial.println("Connecting ... ");
+
     while (WiFi.status() != WL_CONNECTED ) {
       delay(500);
       Serial.print(".");
@@ -54,12 +56,16 @@ void loop() {
             return;
         }
 
-        if ((receivedBytes + packetSize)> TOTAL_SIZE + 2) receivedBytes = 0;
+        if ((receivedBytes + packetSize)> TOTAL_SIZE) receivedBytes = 0;
 
         // Store data in correct position
         memcpy(&data[receivedBytes], buffer , packetSize );
         receivedBytes += packetSize;
-
+        if (receivedBytes == 36000){
+            end_time = micros();
+            Serial.printf("Transfer completed in %lu us\n", end_time - start_time);
+            return;
+        }
 
     }
 }
