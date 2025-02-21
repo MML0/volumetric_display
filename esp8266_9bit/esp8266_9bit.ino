@@ -22,7 +22,11 @@ uint8_t buffer[CHUNK_SIZE];  // Declare globally
 unsigned long start_time, end_time;
 int receivedBytes = 0;
 
-
+void predictableDelay(int iterations) {
+    for (int i = 0; i < iterations; i++) {
+        asm volatile("nop"); // 'volatile' ensures the asm is not optimized away
+    }
+}
 void setup() {
     Serial.begin(921600);
   

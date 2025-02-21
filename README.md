@@ -3,7 +3,8 @@
 
 
 ## colected data esp 82666 d1 mini
-esp 82666 can acsept fagmented data in udp pacets so it recive up to 8 kb of data in one packet 
+esp 82666 can acsept fagmented data in udp packets so it recive up to 8 kb of data in one packet insted of MTU size 1479kb
+we cant send 2 spi signal in 8266 and in hspi that is available (there is 2 spi one for flash) we cant go higher 25Mhz or so (we should test this)  
 
 ### tests:
 CHUNK_SIZE = 7000 Bytes 
