@@ -63,9 +63,7 @@ void pixel_update(uint8_t* data, size_t size) {
   interrupts();  
 
   uint32_t elapsedTime = micros() - startTime;
-  Serial.print("Time taken for 1000 iterations: ");
-  Serial.print(elapsedTime);
-  Serial.println(" microseconds");
+  Serial.printf("size : %lu  completed in %lu us\n", size, elapsedTime);
 }
 
 

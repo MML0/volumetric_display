@@ -17,6 +17,7 @@ const int TOTAL_SIZE = 30 * 1024;
 uint8_t data[TOTAL_SIZE];
 uint8_t buffer[CHUNK_SIZE];  // Declare globally
 unsigned long start_time, end_time;
+unsigned long lastPacketTime = 0;  // Track the last time a packet was received
 int receivedBytes = 0;
 
 size_t data_size = sizeof(data) / sizeof(data[0]); // Calculate the size
@@ -53,6 +54,9 @@ void setup() {
 void loop() {
   int packetSize = udp.parsePacket();
   if (packetSize > 0) {
+      // Update the last packet time
+      lastPacketTime = millis();
+
       udp.read(buffer, packetSize);
 
       if (buffer[0] == 0xAA && packetSize == 1 ){
@@ -61,10 +65,11 @@ void loop() {
           return;
       }
       if (buffer[0] == 0xBB && packetSize == 1 ){
-          end_time = micros();
           Serial.printf("Transfer completed in %lu us\n", end_time - start_time);
+          end_time = micros();
           // data_size = sizeof(data) / sizeof(data[0]);
-          delay(0.05);
+          // you need this delay to reset data if data come faster than 50us
+          // delay(0.05); 
           pixel_update(data, receivedBytes);
 
           return;
@@ -78,8 +83,21 @@ void loop() {
       if (receivedBytes == 30000){
           end_time = micros();
           Serial.printf("Transfer completed in %lu us\n", end_time - start_time);
+          // pixel_update(data, receivedBytes);
           return;
       }
 
+  }
+
+  
+  // Check if no packet has been received for 10 seconds
+  if (millis() - lastPacketTime > 5000) {  
+    // Send all black (0) as the last packet size
+    memset(data, 0, TOTAL_SIZE);  // Fill the data array with 0s
+    pixel_update(data, TOTAL_SIZE);  // Update pixels with all black
+    Serial.println("No packet received for  sseconds. Sent all black.");
+
+    // Reset the last packet time to avoid repeated triggers
+    lastPacketTime = millis();
   }
 }
