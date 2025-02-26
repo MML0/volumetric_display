@@ -123,9 +123,9 @@ void loop() {
   uint32_t startTime = micros();
   // pixel_show(data, sizeof(data));
 
-  for(int j=0;j<1000;j++){
-    // i=(i+1)%24;
-
+  for(int i=0;i<1000;i++){
+    // // i=j;
+    i=(i+1)%48;
 
 
     // Set all pins HIGH
@@ -137,31 +137,33 @@ void loop() {
     // asm volatile ("nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop;");
     // asm volatile ("nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop;");
     // asm volatile ("nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop;");
-    
-    register_value |= ((data[i] & 0x01)  );  // Bit 0 -> PIN0_MASK
-    register_value |= ((data[i] & 0x02) << 1);  // Bit 1 -> PIN2_MASK
-    register_value |= ((data[i] & 0x04) << 2);  // Bit 2 -> PIN4_MASK
-    register_value |= ((data[i] & 0x08) << 2);  // Bit 3 -> PIN5_MASK
-    register_value |= ((data[i] & 0x10) << 8); // Bit 4 -> PIN12_MASK
-    register_value |= ((data[i] & 0x20) << 8);  // Bit 5 -> PIN13_MASK
-    register_value |= ((data[i] & 0x40) << 8);  // Bit 6 -> PIN14_MASK
-    register_value |= ((data[i] & 0x80) << 8);  // Bit 7 -> PIN15_MASK
+
+
+    register_value = 0;
+    register_value |= (data[i] & 0x01);  // Bit 0 -> PIN0_MASK
+    register_value |= ((data[i] & 0x02) << 2);  // Bit 1 -> PIN2_MASK
+    register_value |= ((data[i] & 0x04) << 4);  // Bit 2 -> PIN4_MASK
+    register_value |= ((data[i] & 0x08) << 5);  // Bit 3 -> PIN5_MASK
+    register_value |= ((data[i] & 0x10) << 12); // Bit 4 -> PIN12_MASK
+    register_value |= ((data[i] & 0x20) << 13);  // Bit 5 -> PIN13_MASK
+    register_value |= ((data[i] & 0x40) << 14);  // Bit 6 -> PIN14_MASK
+    register_value |= ((data[i] & 0x80) << 15);  // Bit 7 -> PIN15_MASK
     // uint32_t value = data[i]; // Shift the data to align with our pin masks
-    // *(volatile uint32_t*)GPOS = register_value & ALL_PINS_MASK;  // Set the specified pins HIGH
-    // *(volatile uint32_t*)GPOC = ALL_PINS_MASK & ~register_value; // Set other pins LOW
+    *(volatile uint32_t*)GPOS = register_value & ALL_PINS_MASK;  // Set the specified pins HIGH
+    *(volatile uint32_t*)GPOC = ALL_PINS_MASK & ~register_value; // Set other pins LOW
 
 
-    asm volatile ("nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop;");
-    asm volatile ("nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop;");
-    asm volatile ("nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop;");
+    // asm volatile ("nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop;");
+    // asm volatile ("nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop;");
+    // asm volatile ("nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop;");
 
 
-    // Set all pins LOW
-    *(volatile uint32_t*)GPOC = ALL_PINS_MASK;
+    // // Set all pins LOW
+    // *(volatile uint32_t*)GPOC = ALL_PINS_MASK;
 
-    asm volatile ("nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop;");
-    asm volatile ("nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop;");
-    asm volatile ("nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop;");
+    // asm volatile ("nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop;");
+    // asm volatile ("nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop;");
+    // asm volatile ("nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop;");
 
   }
 
