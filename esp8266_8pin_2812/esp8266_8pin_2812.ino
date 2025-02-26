@@ -78,17 +78,6 @@ uint16_t data2[2] = {
 };
 uint16_t register_value = 0; // Initialize value to 0
 
-void waitNOP(int cycles) {
-  for (int i = 0; i < cycles; i++) {
-    asm volatile ("nop");
-  }
-}
-
-
-
-
-
-
 void setup() {
   Serial.begin(115200);
   pinMode(0, OUTPUT);   // GPIO0 (D3)

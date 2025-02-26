@@ -5,7 +5,7 @@
 
 
 
-const char* ssid = "net emam limited edition";
+const char* ssid = ".";
 const char* password = "12345678an";
 const IPAddress staticIP(192, 168, 43, 222);
 const IPAddress gateway(192, 168, 43, 1);
@@ -15,8 +15,8 @@ unsigned int port = 8266;
 WiFiUDP udp;
 
 
-const int CHUNK_SIZE = 8500;  
-const int TOTAL_SIZE = 36 * 1024;
+const int CHUNK_SIZE = 8000;  
+const int TOTAL_SIZE = 30 * 1024;
 uint8_t data[TOTAL_SIZE];
 uint8_t buffer[CHUNK_SIZE];  // Declare globally
 unsigned long start_time, end_time;
@@ -61,7 +61,7 @@ void loop() {
         // Store data in correct position
         memcpy(&data[receivedBytes], buffer , packetSize );
         receivedBytes += packetSize;
-        if (receivedBytes == 36000){
+        if (receivedBytes == 30000){
             end_time = micros();
             Serial.printf("Transfer completed in %lu us\n", end_time - start_time);
             return;
