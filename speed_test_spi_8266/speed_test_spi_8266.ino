@@ -156,7 +156,6 @@ void loop() {
     asm volatile ("nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop;");
 
 
-    // *gpio_clear = dataPin1Mask | dataPin2Mask | dataPin3Mask;
     // Set all pins LOW
     *(volatile uint32_t*)GPOC = ALL_PINS_MASK;
 
