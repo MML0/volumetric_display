@@ -1,6 +1,7 @@
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 #include "gpio_driver.h"
+
 // #include <WiFi.h>  // Use <ESP8266WiFi.h> for ESP8266
 const char* ssid = ".";
 const char* password = "12345678an";
@@ -24,20 +25,7 @@ size_t data_size = sizeof(data) / sizeof(data[0]); // Calculate the size
 
 
 void setup() {
-    Serial.begin(921600);
-  
-    WiFi.config(staticIP, gateway, subnet);
-    WiFi.begin(ssid, password);
-    Serial.println("");
-    Serial.println("Connecting ... ");
-
-    while (WiFi.status() != WL_CONNECTED ) {
-      delay(500);
-      Serial.print(".");
-    }
-
-    Serial.println("Connected to WiFi");
-    udp.begin(port);
+    Serial.begin(115200);
 
 
     pinMode(0, OUTPUT);   // GPIO0 (D3)
@@ -48,7 +36,44 @@ void setup() {
     pinMode(13, OUTPUT);  // GPIO13 (D7)
     pinMode(14, OUTPUT);  // GPIO14 (D5)
     pinMode(15, OUTPUT);  // GPIO15 (D8)
+  
+    WiFi.config(staticIP, gateway, subnet);
+    WiFi.begin(ssid, password);
+    Serial.println("");
+    Serial.println("Connecting ... ");
+
+    while (WiFi.status() != WL_CONNECTED ) {
+      set_color(data,"blue",2,0xFF) ;
+      memset(data, 0xFF, 24);        // Fill the data array with 0s
+      pixel_update(data, TOTAL_SIZE);
+
+      delay(250);
+      Serial.print(".");
+
+      memset(data, 0, TOTAL_SIZE);  // Fill the data array with 0s
+      pixel_update(data, TOTAL_SIZE);
+      delay(250);
+
+    }
+
+    Serial.println("Connected to WiFi");
+    udp.begin(port);
     Serial.println("Starting data transmission...");
+
+    Serial.println("Start freeing up the buffer for some second");
+    // Start freeing up the buffer for 1 second
+    set_color(data,"green",2);
+    pixel_update(data, TOTAL_SIZE);
+    unsigned long startTime = millis(); // Record the start time
+    while (millis() - startTime < 2000) { // Run for 1 second
+        int packetSize = udp.parsePacket(); // Check if there is a UDP packet available
+        if (packetSize > 0) {
+            // Read and discard the incoming data to free up the buffer
+            udp.read(buffer, packetSize);
+        }
+
+    }
+
 }
 
 void loop() {
@@ -65,13 +90,15 @@ void loop() {
           return;
       }
       if (buffer[0] == 0xBB && packetSize == 1 ){
-          Serial.printf("Transfer completed in %lu us\n", end_time - start_time);
-          end_time = micros();
-          // data_size = sizeof(data) / sizeof(data[0]);
-          // you need this delay to reset data if data come faster than 50us
+          // end_time = micros();
+          // Serial.printf("data Transfer completed in %lu us\n", end_time - start_time);
+          // // you need this delay to reset data if data come faster than 50us
           // delay(0.05); 
+          // add a moving avrege i if receve data shrter than avrege dope data and notity me with a blink in strip 
           pixel_update(data, receivedBytes);
-
+          end_time = micros();
+          if(end_time%5) Serial.printf("%c%c%c data size %lu frame time %lu us  FPS: %lu \n\n",(receivedBytes/100)%255,(receivedBytes/10)%255,(receivedBytes/10+128)%255
+                        ,receivedBytes, end_time - start_time,1000000/(end_time - start_time));
           return;
       }
 
@@ -80,13 +107,26 @@ void loop() {
       // Store data in correct position
       memcpy(&data[receivedBytes], buffer , packetSize );
       receivedBytes += packetSize;
-      if (receivedBytes == 30000){
-          end_time = micros();
-          Serial.printf("Transfer completed in %lu us\n", end_time - start_time);
-          // pixel_update(data, receivedBytes);
+      // if (receivedBytes == 30000){
+      //     end_time = micros();
+      //     Serial.printf("Transfer completed in %lu us\n", end_time - start_time);
+      //     // pixel_update(data, receivedBytes);
+      //     return;
+      // }
+
+      // remote command to reset
+      if (buffer[0] == 0x10 && buffer[1] == 0xFF && packetSize == 2) {
+          // Reset ESP
+          ESP.restart(); // Replace this with your actual ESP reset function
           return;
       }
-
+      // remote command to turn off all pixels
+      if (buffer[0] == 0x0B && buffer[1] == 0x1C && packetSize == 2) {
+          memset(data, 0, TOTAL_SIZE);  // Fill the data array with 0s
+          pixel_update(data, TOTAL_SIZE);  // Update pixels with all black
+          Serial.println("command: Sent all black.");
+          return;
+      }
   }
 
   
