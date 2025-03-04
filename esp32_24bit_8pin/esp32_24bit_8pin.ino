@@ -8,6 +8,9 @@
 
 #include <string>
 
+#include <WiFi.h>
+#include <WiFiUdp.h>
+
 #define PIN0_MASK (1 << 0)  // GPIO0
 #define PIN2_MASK (1 << 2)  // GPIO2
 #define PIN4_MASK (1 << 4)  // GPIO4

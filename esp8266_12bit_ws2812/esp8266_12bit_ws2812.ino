@@ -60,20 +60,6 @@ void setup() {
     udp.begin(port);
     Serial.println("Starting data transmission...");
 
-    Serial.println("Start freeing up the buffer for some second");
-    // Start freeing up the buffer for 1 second
-    set_color(data,"green",2);
-    pixel_update(data, TOTAL_SIZE);
-    unsigned long startTime = millis(); // Record the start time
-    while (millis() - startTime < 2000) { // Run for 1 second
-        int packetSize = udp.parsePacket(); // Check if there is a UDP packet available
-        if (packetSize > 0) {
-            // Read and discard the incoming data to free up the buffer
-            udp.read(buffer, packetSize);
-        }
-
-    }
-
 }
 
 void loop() {
@@ -90,14 +76,16 @@ void loop() {
           return;
       }
       if (buffer[0] == 0xBB && packetSize == 1 ){
-          // end_time = micros();
-          // Serial.printf("data Transfer completed in %lu us\n", end_time - start_time);
+          end_time = micros();
+          Serial.printf("WIFI > data size: %lu time: %lu us FPS: %lu\n", receivedBytes, end_time - start_time,1000000/(end_time - start_time));
+
           // // you need this delay to reset data if data come faster than 50us
           // delay(0.05); 
           // add a moving avrege i if receve data shrter than avrege dope data and notity me with a blink in strip 
           pixel_update(data, receivedBytes);
+
           end_time = micros();
-          if(end_time%5) Serial.printf("%c%c%c data size %lu frame time %lu us  FPS: %lu \n\n",(receivedBytes/100)%255,(receivedBytes/10)%255,(receivedBytes/10+128)%255
+          Serial.printf("%c%c%c > data size: %lu time : %lu us FPS: %lu \n\n",(receivedBytes/100)%255,(receivedBytes/10)%255,(receivedBytes/10+128)%255
                         ,receivedBytes, end_time - start_time,1000000/(end_time - start_time));
           return;
       }

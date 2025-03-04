@@ -4,8 +4,8 @@ import random
 import select
 ESP_IP = "192.168.43.222"  # Replace with ESP's IP
 ESP_PORT = 8266
-CHUNK_SIZE = 1400  
-TOTAL_SIZE =   24*100
+CHUNK_SIZE = 5000  
+TOTAL_SIZE =   24*500
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 # sock.setblocking(False)
@@ -27,19 +27,16 @@ def sleep_fps(FPS:int=10):
 def send_data(data, ESP_IP, ESP_PORT, chunk_size=1400):
     """ Sends data in chunks via UDP to ESP8266. """
 
-    ready = select.select([], [sock], [], 1)  
-    time.sleep(0.002)  # Small delay for ESP to process
+    # ready = select.select([], [sock], [], 2)  
     sock.sendto(b"\xAA", (ESP_IP, ESP_PORT))  # Start byte
-    time.sleep(0.002)  # Small delay for ESP to process
-
+    time.sleep(0.0005)  # Small delay for ESP to process
 
     for i in range(0, len(data), chunk_size):
         chunk = data[i:i+chunk_size]  # Extract chunk
 
-        ready = select.select([], [sock], [], 0.02)  
-        ready = select.select([], [sock], [], 2)  
+        ready = select.select([], [sock], [], 0.0001)  
         sock.sendto(chunk, (ESP_IP, ESP_PORT))  # Send chunk
-        time.sleep(0.002)  # Small delay for ESP to process
+        # time.sleep(0.001)  # Small delay for ESP to process
 
     sock.sendto(b"\xBB", (ESP_IP, ESP_PORT))  # End byte
     # print("Data transfer completed.")
@@ -68,7 +65,7 @@ while 1:
     start_time = time.time()
     send_data(data, ESP_IP, ESP_PORT, CHUNK_SIZE)
     end_time = time.time()
-    sleep_fps(10)
+    sleep_fps(19)
 
     end_time2 = time.time()
     print(f"Sent {len(data)} bytes in {end_time - start_time:.6f} seconds FPS: {1/(end_time - start_time):6.1f} - {1/(end_time2 - start_time):3.1f}")

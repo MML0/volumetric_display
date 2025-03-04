@@ -64,7 +64,7 @@ void pixel_update(uint8_t* data, size_t size) {
 
 
   uint32_t elapsedTime = micros() - startTime;
-  Serial.printf("size : %lu  completed in %lu us\n", size, elapsedTime);
+  Serial.printf("GPIO > iteration: %lu time: %lu us FPS: %lu\n", size, elapsedTime,1000000/elapsedTime);
   interrupts();  
 }
 
