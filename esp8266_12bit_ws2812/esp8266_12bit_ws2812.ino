@@ -13,9 +13,10 @@ unsigned int port = 8266;
 WiFiUDP udp;
 
 
-const int CHUNK_SIZE = 8000;  
-const int TOTAL_SIZE = 30 * 1024;
+const int CHUNK_SIZE = 5000;  
+const int TOTAL_SIZE = 24 * 1202;
 uint8_t data[TOTAL_SIZE];
+uint8_t data_buffer[TOTAL_SIZE/2];
 uint8_t buffer[CHUNK_SIZE];  // Declare globally
 unsigned long start_time, end_time;
 unsigned long lastPacketTime = 0;  // Track the last time a packet was received
@@ -43,8 +44,9 @@ void setup() {
     Serial.println("Connecting ... ");
 
     while (WiFi.status() != WL_CONNECTED ) {
-      set_color(data,"blue",2,0xFF) ;
+      // set_color(data,"blue",2,0xFF) ;
       memset(data, 0xFF, 24);        // Fill the data array with 0s
+      memset(data, 0x00, 9);        // Fill the data array with 0s
       pixel_update(data, TOTAL_SIZE);
 
       delay(250);
@@ -61,7 +63,44 @@ void setup() {
     Serial.println("Starting data transmission...");
 
 }
+// get a data in 12 or 9 bit format and convert it to 24 
+void convevrt_to_24bit(uint8_t* data, size_t size, uint8_t* data24 , uint8_t from = 12){
+    memset(data24, 0, TOTAL_SIZE);
+    if(from == 12){
+        for(int i=0;i<size / from;i++){
+          data24[i * 24 + 0] =  data[i * 12 + 0];
+          data24[i * 24 + 2] =  data[i * 12 + 1];
+          data24[i * 24 + 4] =  data[i * 12 + 2];
+          data24[i * 24 + 6] =  data[i * 12 + 3];
+          data24[i * 24 + 8] =  data[i * 12 + 4];
+          data24[i * 24 + 10] = data[i * 12 + 5];
+          data24[i * 24 + 12] = data[i * 12 + 6];
+          data24[i * 24 + 14] = data[i * 12 + 7];
+          data24[i * 24 + 16] = data[i * 12 + 8];
+          data24[i * 24 + 18] = data[i * 12 + 9];
+          data24[i * 24 + 20] = data[i * 12 + 10];
+          data24[i * 24 + 22] = data[i * 12 + 11];
+        }
+    }
+    if (from == 9) {
+        for (int i = 0; i < size / 9; i++) {
+            data24[i*24]= 0x00;
 
+            data24[i * 24+  1 ] = data[i * 9 + 0];
+            data24[i * 24 + 4 ] = data[i * 9 + 1];
+            data24[i * 24 + 7 ] = data[i * 9 + 2];
+            data24[i * 24 + 9 ] = data[i * 9 + 3];
+            data24[i * 24 + 12] = data[i * 9 + 4];
+            data24[i * 24 + 15] = data[i * 9 + 5];
+            data24[i * 24 + 17] = data[i * 9 + 6];
+            data24[i * 24 + 21] = data[i * 9 + 7];
+            data24[i * 24 + 23] = data[i * 9 + 8];
+
+        }
+    }
+    
+    return;
+}
 void loop() {
   int packetSize = udp.parsePacket();
   if (packetSize > 0) {
@@ -82,18 +121,20 @@ void loop() {
           // // you need this delay to reset data if data come faster than 50us
           // delay(0.05); 
           // add a moving avrege i if receve data shrter than avrege dope data and notity me with a blink in strip 
-          pixel_update(data, receivedBytes);
+          convevrt_to_24bit(data_buffer, receivedBytes,data,12);
+
+          pixel_update(data, receivedBytes*2);
 
           end_time = micros();
-          Serial.printf("%c%c%c > data size: %lu time : %lu us FPS: %lu \n\n",(receivedBytes/100)%255,(receivedBytes/10)%255,(receivedBytes/10+128)%255
-                        ,receivedBytes, end_time - start_time,1000000/(end_time - start_time));
+          Serial.printf("%c%c%c  > frame time: %lu time: %lu us FPS: %lu \n\n",(receivedBytes/100)%93+33,(receivedBytes/10)%93+33,(receivedBytes/5+128)%93+33
+                        ,receivedBytes/12, end_time - start_time,1000000/(end_time - start_time));
           return;
       }
 
       if ((receivedBytes + packetSize)> TOTAL_SIZE) receivedBytes = 0;
 
       // Store data in correct position
-      memcpy(&data[receivedBytes], buffer , packetSize );
+      memcpy(&data_buffer[receivedBytes], buffer , packetSize );
       receivedBytes += packetSize;
       // if (receivedBytes == 30000){
       //     end_time = micros();

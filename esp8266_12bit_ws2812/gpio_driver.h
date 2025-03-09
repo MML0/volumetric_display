@@ -25,19 +25,27 @@ uint16_t register_value = 0; // Initialize value to 0
 // Bits 17-24: Blue (MSB first)
 void pixel_update(uint8_t* data, size_t size) {
   noInterrupts();  
+  //just testing why first bit takes longer
+  register_value |= (data[0] & 0x01 );
+  *(volatile uint32_t*)GPOC = ALL_PINS_MASK;
+
+  //end test
   uint32_t startTime = micros();
   for(int i=0;i<size;i++){
-    // // i=j;
+    // came from down there cause it take 
+    register_value = 0x0000;
+    register_value |= ((data[i] & 0x01 ));  // Bit 0 -> PIN0_MASK
+    register_value |= ((data[i] & 0x02) << 1);  // Bit 1 -> PIN2_MASK
+    register_value |= ((data[i] & 0x04) << 2);  // Bit 2 -> PIN4_MASK
+    
+    
     // Set all pins HIGH
     *(volatile uint32_t*)GPOS = ALL_PINS_MASK;
 
-    asm volatile ("nop; nop; nop; nop; nop;");
+    // asm volatile ("nop; nop; nop; nop; nop;");
 
 
-    register_value = 0x0000;
-    register_value |= ((data[i] & 0x01 )<< 0);  // Bit 0 -> PIN0_MASK
-    register_value |= ((data[i] & 0x02) << 1);  // Bit 1 -> PIN2_MASK
-    register_value |= ((data[i] & 0x04) << 2);  // Bit 2 -> PIN4_MASK
+    // register_value = 0x0000;
     register_value |= ((data[i] & 0x08) << 2);  // Bit 3 -> PIN5_MASK
     register_value |= ((data[i] & 0x10) << 8); // Bit 4 -> PIN12_MASK
     register_value |= ((data[i] & 0x20) << 8);  // Bit 5 -> PIN13_MASK
@@ -50,7 +58,7 @@ void pixel_update(uint8_t* data, size_t size) {
 
     asm volatile ("nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop;");
     asm volatile ("nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop;");
-    asm volatile ("nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop;");
+    asm volatile ("nop; nop; nop; nop; nop; nop; nop; nop; ");
 
 
     // Set all pins LOW
@@ -58,7 +66,7 @@ void pixel_update(uint8_t* data, size_t size) {
 
     asm volatile ("nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop;");
     asm volatile ("nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; nop;");
-    asm volatile ("nop; nop; nop; nop; nop; nop; nop; ");
+    // asm volatile ("nop; nop; nop; ");
     // i=(i+1)%48;
   }
 
