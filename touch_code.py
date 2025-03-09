@@ -90,8 +90,8 @@ def whileOn(channel, sampleIndex, val, prev):
 
 def onOnToOff(channel, sampleIndex, val, prev):
     reds  =  [[] for _ in range(8)]
-    greens = [[] for _e in range(8)]
-    blues  = [[] for _w in range(8)]
+    greens = [[] for _ in range(8)]
+    blues  = [[] for _ in range(8)]
     data = bytearray(TOTAL_SIZE)
     for i in range(1, 9):  # Pins are numbered from 1 to 8
         pin_name = f'pin{i}'  # Construct the pin name dynamically (e.g., 'pin1', 'pin2', etc.)
@@ -108,9 +108,9 @@ def onOnToOff(channel, sampleIndex, val, prev):
     for i in range(0,len(greens[0]),12):
         for j in range(4):
             for k in range(8):
-                data[i+j+0]  |= (0 if not ((1 << (3 - j)) & int(greens[k][i] / 16)) else 1) << k
-                data[i+j+4]  |= (0 if not ((1 << (3 - j)) & int(reds[k][i] /   16)) else 1) << k
-                data[i+j+8]  |= (0 if not ((1 << (3 - j)) & int(blues[k][i] / 16 )) else 1) << k
+                data[i+j+0]  |= (1 if  ((1 << (3 - j)) & (greens[k][i] // 16)) else 0) << k
+                data[i+j+4]  |= (1 if  ((1 << (3 - j)) & (reds[k][i] //   16)) else 0) << k
+                data[i+j+8]  |= (1 if  ((1 << (3 - j)) & (blues[k][i] // 16 )) else 0) << k
 
     print(data[0:24])
         # data[i+0]  = 0b10001001
