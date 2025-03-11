@@ -68,6 +68,6 @@ while 1:
     sleep_fps(10)
     # time.sleep(0.01)
 
-    end_time2 = time.time()
+    end_time2 = time.time() 
     print(f"Sent {len(data)} bytes in {end_time - start_time:.6f} seconds FPS: {1/(end_time - start_time):6.1f} - {1/(end_time2 - start_time):3.1f}")
 sock.close()  # Close socket
