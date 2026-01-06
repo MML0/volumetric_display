@@ -1,6 +1,6 @@
 # volumetric_display
 
-
+In this repo, we can theoretically send data to 8 WS2812 strips at the same time, controlling up to 8,000 pixels.
 
 ## colected data esp 82666 d1 mini
 esp 82666 can acsept fagmented data in udp packets so it recive up to 8 kb of data in one packet insted of MTU size 1479kb
